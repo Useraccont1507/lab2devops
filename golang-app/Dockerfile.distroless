@@ -1,0 +1,20 @@
+# multi-stage with distroless: minimal image with basic OS (CA certs, timezone data).
+# More debuggable than scratch; still no shell or package manager.
+FROM golang:1.22-bookworm AS build
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o fizzbuzz .
+
+FROM gcr.io/distroless/static-debian12
+
+WORKDIR /app
+COPY --from=build /app/fizzbuzz .
+COPY --from=build /app/templates ./templates
+
+EXPOSE 8080
+CMD ["/app/fizzbuzz", "serve", "--port", "8080"]
