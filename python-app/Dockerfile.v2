@@ -1,0 +1,14 @@
+# v2: optimized layer ordering + pinned deps.
+# requirements.txt layer is cached; only source code layer rebuilds on code changes.
+FROM python:3.13-bookworm
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY spaceship/ ./spaceship/
+COPY build/ ./build/
+
+EXPOSE 8000
+CMD ["uvicorn", "spaceship.main:app", "--host", "0.0.0.0", "--port", "8000"]
