@@ -1,0 +1,13 @@
+# basic: single-stage build. Contains Go toolchain + source in final image.
+FROM golang:1.22-bookworm
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN go build -o fizzbuzz .
+
+EXPOSE 8080
+CMD ["./fizzbuzz", "serve", "--port", "8080"]
